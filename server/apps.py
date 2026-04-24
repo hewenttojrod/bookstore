@@ -1,6 +1,7 @@
 from django.apps import AppConfig
+from .registry import MODULE_REGISTRATION as module
 
 
-class BookstoreConfig(AppConfig):
+class bookstore_config(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'Bookstore'
+    name = f"{module.name}.server"
