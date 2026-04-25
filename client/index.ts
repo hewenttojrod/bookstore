@@ -12,6 +12,10 @@ export const routes: ModuleRoute[] = [
     path: `${base_route}/catalog`, 
     load: () => import("./catalog/catalog_list")
   },
+  {
+    path: `${base_route}/catalog/add`,
+    load: () => import("./catalog/catalog_add"),
+  },
 ];
 
 export const navItem: SidebarNavItem = {
@@ -33,6 +37,13 @@ export const navItem: SidebarNavItem = {
       path: `${base_route}/catalog`, 
       section: "module", 
       order: 102 
+    },
+    {
+      id: "bookstore-catalog-add",
+      title: "Add Book",
+      path: `${base_route}/catalog/add`,
+      section: "module",
+      order: 103,
     },
   ]
 };

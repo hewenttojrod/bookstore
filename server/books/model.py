@@ -29,7 +29,7 @@ class Book(BaseModel):
     def save(self, *args, **kwargs):
 
         if (not self.sbn_code):
-            self.sbn_code = self.book_genre + strs_to_numeric_code(self.author, self.title, length=47)
+            self.sbn_code = self.genre + strs_to_numeric_code(self.author, self.title, length=10)
     
         super().save(*args, **kwargs)
 
