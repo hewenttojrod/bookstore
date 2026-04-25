@@ -1,3 +1,18 @@
+/**
+ * Bookstore catalog listing page.
+ * Displays a grid of all books with columns for ID, title, author, genre (with label mapping),
+ * SBN code, and description (truncated).
+ * 
+ * Features:
+ * - Loads genre options on mount to create a code->label map for display
+ * - Right-click context menu with delete action
+ * - Delete action includes confirmation and automatic grid refresh
+ * - Column definitions include sortable metadata and custom render functions
+ * 
+ * Component State:
+ * - genreMap: Maps genre codes to display labels
+ * - refreshTick: Counter triggering grid refresh after delete operation
+ */
 import { useEffect, useMemo, useState } from "react";
 import FormBody from "@templates/form-body";
 import DataGrid from "@templates/data-grid";

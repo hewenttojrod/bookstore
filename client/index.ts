@@ -1,3 +1,16 @@
+/**
+ * Bookstore module entry point.
+ * Exports routes for all Bookstore pages and the navigation sidebar item.
+ * 
+ * Routes:
+ * - /Bookstore - Module home page
+ * - /Bookstore/catalog - List all books with genre mapping and delete action
+ * - /Bookstore/catalog/add - Form to create new books
+ * 
+ * Navigation Item:
+ * - Provides hierarchical sidebar menu with all three routes
+ * - Placed in "module" section with order 100
+ */
 
 import type { SidebarNavItem, ModuleRoute } from "@app-types/navigation";
 

@@ -1,3 +1,17 @@
+/**
+ * Bookstore add book page.
+ * Provides a form to create new books via REST API POST request.
+ * 
+ * Features:
+ * - Dynamically loads genre options from backend
+ * - Form fields: Title, Author, Genre (select), Description (textarea)
+ * - Displays POST response payload in JSON format after successful creation
+ * - Supports EntryForm's create mode (initial mode is always "create")
+ * 
+ * Component State:
+ * - apiResponse: Stores the POST response from successful book creation
+ * - genreOptions: Genre options for the genre select field
+ */
 import { useEffect, useMemo, useState } from "react";
 import FormBody from "@templates/form-body";
 import EntryForm from "@templates/entry-form";
