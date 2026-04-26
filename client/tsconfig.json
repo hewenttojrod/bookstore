@@ -1,9 +1,0 @@
-{
-  "extends": "../../../client/tsconfig.app.json",
-  "compilerOptions": {
-    "baseUrl": "../../../client",
-    "typeRoots": ["../../../client/node_modules/@types"],
-    "types": ["react", "react-dom"]
-  },
-  "include": ["./**/*.ts", "./**/*.tsx"]
-}
