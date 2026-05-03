@@ -2,7 +2,7 @@ from ninja import NinjaAPI
 from .model import Book
 from .book_api_schema import BookGenreOptionSchema, BookSchema, BookSchemaCreate, BookSchemaUpdate
 from django.shortcuts import get_object_or_404
-app = NinjaAPI()
+app = NinjaAPI(urls_namespace="bookstore_api", docs_url="/docs")
 
 
 
