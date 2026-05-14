@@ -14,8 +14,7 @@
  * - refreshTick: Counter triggering grid refresh after delete operation
  */
 import { useEffect, useMemo, useState } from "react";
-import FormBody from "@templates/form-body";
-import DataGrid from "@templates/data-grid";
+import GridScreen from "@templates/grid-screen";
 import type { ColumnDef, GridContextAction } from "@app-types/api";
 import { BOOK_LIST_ENDPOINT, deleteBookById, fetchBookGenreOptions } from "./book-api";
 
@@ -32,6 +31,10 @@ export default function BookstoreCatalog() {
   const [genreMap, setGenreMap] = useState<Record<string, string>>({});
   const [refreshTick, setRefreshTick] = useState(0);
 
+  // Fetch genre options once on mount to build the code→label map used by the grid's
+  // genre column renderer. An AbortController is used so that if the component unmounts
+  // before the request resolves (e.g. user navigates away) the in-flight request is
+  // cancelled and the state setter is never called on the unmounted component.
   useEffect(() => {
     const controller = new AbortController();
 
@@ -109,13 +112,13 @@ export default function BookstoreCatalog() {
   const gridParams = useMemo(() => ({ _r: String(refreshTick) }), [refreshTick]);
 
   return (
-    <FormBody title="Bookstore Catalog" subtitle="Books loaded asynchronously from the REST API.">
-      <DataGrid<BookRow>
-        columns={columns}
-        endpoint={BOOK_LIST_ENDPOINT}
-        params={gridParams}
-        contextMenuActions={contextMenuActions}
-      />
-    </FormBody>
+    <GridScreen<BookRow>
+      title="Bookstore Catalog"
+      subtitle="Books loaded asynchronously from the REST API."
+      columns={columns}
+      endpoint={BOOK_LIST_ENDPOINT}
+      params={gridParams}
+      contextMenuActions={contextMenuActions}
+    />
   );
 }

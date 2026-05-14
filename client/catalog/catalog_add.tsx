@@ -13,10 +13,16 @@
  * - genreOptions: Genre options for the genre select field
  */
 import { useEffect, useMemo, useState } from "react";
+import ErrorBanner from "@templates/error-banner";
+import FormBuilder from "@templates/form-builder";
 import FormBody from "@templates/form-body";
-import EntryForm from "@templates/entry-form";
-import type { FieldDef } from "@app-types/api";
-import { BOOK_ENTRY_ENDPOINT, fetchBookGenreOptions } from "./book-api";
+import SectionPanel from "@templates/section-panel";
+import SuccessBanner from "@templates/success-banner";
+import { useFormEngine } from "@/hooks/use-form-engine";
+import { fetchWithRetry } from "@/utils/api-fetch";
+import { parseJsonResponse } from "@/utils/api-json";
+import { BOOK_ENTRY_ENDPOINT, fetchBookGenreOptions, type BookGenreOption } from "./book-api";
+import { createBookFormSchema } from "./book-form.schema";
 
 type BookPayload = {
   title: string;
@@ -29,7 +35,10 @@ type BookPayload = {
 
 export default function BookstoreCatalogAdd() {
   const [apiResponse, setApiResponse] = useState<BookPayload | null>(null);
-  const [genreOptions, setGenreOptions] = useState<Array<{ label: string; value: string }>>([]);
+  const [genreOptions, setGenreOptions] = useState<BookGenreOption[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -48,45 +57,77 @@ export default function BookstoreCatalogAdd() {
     return () => controller.abort();
   }, []);
 
-  const fields: FieldDef<BookPayload>[] = useMemo(
-    () => [
-      { key: "title", label: "Title", type: "text", required: true },
-      { key: "author", label: "Author", type: "text", required: true },
-      {
-        key: "genre",
-        label: "Genre",
-        type: "select",
-        options: genreOptions,
-      },
-      // { key: "sbn_code", label: "SBN Code", type: "text" },
-      { key: "description", label: "Description", type: "textarea" },
-    ],
-    [genreOptions]
-  );
+  const formSchema = useMemo(() => createBookFormSchema(genreOptions), [genreOptions]);
+  const {
+    values,
+    errors,
+    setFieldValue,
+    reset,
+    validate,
+    buildPayload,
+    clearErrors,
+  } = useFormEngine(formSchema);
+
+  const onCreateBook = async () => {
+    if (!validate()) {
+      setError("Please correct highlighted form fields.");
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+    setError(null);
+    clearErrors();
+
+    try {
+      const payload = buildPayload();
+      const response = await fetchWithRetry(BOOK_ENTRY_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await parseJsonResponse<BookPayload>(response);
+      setApiResponse(data);
+      setMessage("Book created.");
+      reset();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <FormBody
       title="Add Book"
       subtitle="Create a new book entry via REST API POST /book/ and inspect the returned payload."
     >
-      <EntryForm<BookPayload>
-        fields={fields}
-        endpoint={BOOK_ENTRY_ENDPOINT}
-        initialMode="create"
-        onSuccess={(result) => {
-          if (result.mode === "saved") {
-            setApiResponse(result.data as BookPayload);
-          }
-        }}
-      />
+      {message && <SuccessBanner message={message} />}
+      {error && <ErrorBanner message={error} />}
+
+      <SectionPanel title="New Book">
+        <FormBuilder
+          schema={formSchema}
+          values={values}
+          errors={errors}
+          disabled={saving}
+          onChange={setFieldValue}
+        />
+
+        <div className="action-row">
+          <button type="button" className="btn-primary" disabled={saving} onClick={() => void onCreateBook()}>
+            {saving ? "Saving..." : "Create Book"}
+          </button>
+        </div>
+      </SectionPanel>
 
       {apiResponse && (
-        <section className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-          <h2 className="mb-2 text-sm font-semibold">POST Response</h2>
+        <SectionPanel title="POST Response">
           <pre className="overflow-x-auto text-xs text-slate-700 dark:text-slate-300">
             {JSON.stringify(apiResponse, null, 2)}
           </pre>
-        </section>
+        </SectionPanel>
       )}
     </FormBody>
   );

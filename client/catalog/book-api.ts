@@ -4,6 +4,7 @@
  */
 
 import { fetchWithRetry } from "@/utils/api-fetch";
+import { parseJsonResponse } from "@/utils/api-json";
 
 /**
  * REST API endpoints for book operations.
@@ -35,12 +36,7 @@ export type BookGenreOption = {
  */
 export async function fetchBookGenreOptions(signal?: AbortSignal): Promise<BookGenreOption[]> {
 	const response = await fetchWithRetry(BOOK_GENRES_ENDPOINT, { signal });
-	if (!response.ok) {
-		throw new Error(`Failed to load genres: ${response.status} ${response.statusText}`);
-	}
-
-	const payload = (await response.json()) as BookGenreOption[];
-	return payload;
+	return parseJsonResponse<BookGenreOption[]>(response);
 }
 
 /**
